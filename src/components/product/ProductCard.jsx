@@ -37,10 +37,22 @@ export default function ProductCard({ product, onQuickView, loading = 'lazy' }) 
           <span className="product-card__price">{formatPrice(product.price)}</span>
           <button
             type="button"
-            className="btn btn--small btn--dark"
+            className="product-card__add"
             onClick={() => addToCart(product)}
+            aria-label={`Add ${product.name} to cart`}
+            title="Add to cart"
           >
-            Add to Cart
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                d="M6 8h12l-1 12H7L6 8z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M9.5 17V12M14.5 17V12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+            </svg>
           </button>
         </div>
       </div>

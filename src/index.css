@@ -14,14 +14,32 @@
   --color-muted: #6b6d66;
   --border-color: #e1dfd7;
   --border-color-strong: #c9c7bc;
-  --radius: 3px;
+  --radius: 0px;
   --shadow-sm: 0 1px 3px rgba(20, 20, 15, 0.08);
   --shadow-md: 0 8px 24px rgba(20, 20, 15, 0.12);
   --container-width: 1320px;
+  --container-padding: clamp(1rem, 1rem + 2vw, 2rem);
+  --section-padding: clamp(2.5rem, 2rem + 2.5vw, 5rem);
   --header-height: 76px;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --transition-fast: 160ms ease;
   --transition-base: 240ms ease;
+}
+
+/* Container width steps down with the same breakpoints used for layout
+   below (1536 / 1280 / 1024 large-desktop-to-laptop tiers), so every
+   section sharing var(--container-width) — header, footer, and all page
+   sections — stays perfectly aligned instead of drifting apart. */
+@media (max-width: 1535px) {
+  :root {
+    --container-width: 1180px;
+  }
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --container-width: 100%;
+  }
 }
 
 * {
@@ -36,6 +54,7 @@ html {
 body {
   margin: 0;
   font-family: var(--font-body);
+  font-size: clamp(0.9375rem, 0.85rem + 0.35vw, 1.0625rem);
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.5;
@@ -67,6 +86,7 @@ select,
 textarea {
   font-family: inherit;
   font-size: 1rem;
+  line-height: inherit;
   color: inherit;
 }
 
@@ -87,11 +107,13 @@ h4 {
 }
 
 h1 {
-  font-size: clamp(1.9rem, 3.2vw, 3rem);
+  /* ~32px on small phones, ~42px on tablet, up to 64px on large desktop. */
+  font-size: clamp(2rem, 1.2rem + 3vw, 4rem);
 }
 
 h2 {
-  font-size: clamp(1.5rem, 2.2vw, 2.1rem);
+  /* ~28px on small phones, ~31px on tablet, up to 44px on desktop. */
+  font-size: clamp(1.75rem, 1rem + 2vw, 2.75rem);
 }
 
 h3 {
@@ -171,7 +193,7 @@ main {
 .categories-strip {
   max-width: var(--container-width);
   margin-inline: auto;
-  padding-inline: 24px;
+  padding-inline: var(--container-padding);
 }
 
 .section-heading {
@@ -197,7 +219,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 13px 26px;
+  padding: 13px 28px;
   border-radius: var(--radius);
   font-weight: 600;
   font-size: 0.95rem;
@@ -331,8 +353,11 @@ main {
   flex-shrink: 0;
 }
 
-.desktop-nav a {
-  display: block;
+.desktop-nav a,
+.desktop-nav .nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.88rem;
   font-weight: 500;
   color: var(--color-text);
@@ -343,9 +368,66 @@ main {
 }
 
 .desktop-nav a:hover,
-.desktop-nav a.is-active {
+.desktop-nav a.is-active,
+.has-dropdown:hover .nav-toggle,
+.nav-toggle[aria-expanded='true'] {
   color: var(--color-secondary);
   border-color: var(--color-secondary);
+}
+
+.has-dropdown {
+  position: relative;
+}
+
+.nav-toggle__chevron {
+  transition: transform var(--transition-fast);
+}
+
+.nav-toggle[aria-expanded='true'] .nav-toggle__chevron {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 14px;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+  z-index: 110;
+}
+
+.has-dropdown:hover .nav-dropdown,
+.has-dropdown:focus-within .nav-dropdown,
+.nav-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-dropdown a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border-bottom: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.nav-dropdown a:hover,
+.nav-dropdown a.is-active {
+  background: var(--color-surface);
+  color: var(--color-secondary);
 }
 
 .site-header__icons {
@@ -436,6 +518,47 @@ main {
   border-bottom: 1px solid var(--border-color);
 }
 
+.mobile-nav__accordion summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+}
+
+.mobile-nav__accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-nav__accordion summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--transition-fast);
+}
+
+.mobile-nav__accordion details[open] summary::after {
+  transform: rotate(-135deg);
+}
+
+.mobile-nav__accordion ul {
+  background: var(--color-surface);
+}
+
+.mobile-nav__accordion ul a {
+  padding-left: 36px;
+  font-weight: 400;
+  font-size: 0.92rem;
+}
+
 .mobile-nav__footer {
   padding: 20px;
   border-top: 1px solid var(--border-color);
@@ -508,9 +631,8 @@ main {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   align-items: center;
-  gap: 48px;
-  padding-top: 56px;
-  padding-bottom: 56px;
+  gap: clamp(2rem, 4vw, 3rem);
+  padding-block: var(--section-padding);
 }
 
 .hero__eyebrow {
@@ -565,12 +687,12 @@ main {
    ========================================================= */
 
 .category-grid-section {
-  padding-block: 64px;
+  padding-block: var(--section-padding);
 }
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
@@ -603,6 +725,10 @@ main {
 
 .category-card__label h3 {
   font-size: 1.15rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .category-card__label span {
@@ -618,7 +744,7 @@ main {
    ========================================================= */
 
 .featured-products {
-  padding-block: 64px;
+  padding-block: var(--section-padding);
   background: var(--color-surface);
 }
 
@@ -670,7 +796,7 @@ main {
   top: 10px;
   right: 10px;
   background: #fff;
-  border-radius: 50%;
+  border-radius: var(--radius);
   width: 34px;
   height: 34px;
   display: flex;
@@ -715,6 +841,12 @@ main {
 .product-card__name {
   font-weight: 600;
   font-size: 0.95rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+  min-height: calc(1.35em * 2);
 }
 
 .product-card__gsm {
@@ -727,13 +859,33 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding-top: 8px;
+  gap: 12px;
+  padding-top: 12px;
 }
 
 .product-card__price {
   font-weight: 700;
   font-size: 1.05rem;
+}
+
+.product-card__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius);
+  color: var(--color-primary);
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.product-card__add:hover,
+.product-card__add:focus-visible {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
 }
 
 /* =========================================================
@@ -743,7 +895,7 @@ main {
 .business-solutions {
   background: var(--color-primary);
   color: #fff;
-  padding-block: 72px;
+  padding-block: var(--section-padding);
 }
 
 .business-solutions__list {
@@ -757,7 +909,7 @@ main {
 .business-solutions__list li {
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 10px 18px;
-  border-radius: 999px;
+  /* border-radius: 999px; */
   font-size: 0.88rem;
 }
 
@@ -773,7 +925,7 @@ main {
    ========================================================= */
 
 .bulk-cta {
-  padding-block: 72px;
+  padding-block: var(--section-padding);
   background: var(--color-surface);
 }
 
@@ -801,7 +953,7 @@ main {
    ========================================================= */
 
 .why-choose-us {
-  padding-block: 72px;
+  padding-block: var(--section-padding);
 }
 
 .why-choose-us__grid {
@@ -858,7 +1010,7 @@ main {
    ========================================================= */
 
 .about-teaser {
-  padding-block: 64px;
+  padding-block: var(--section-padding);
 }
 
 .about-teaser__inner {
@@ -994,8 +1146,7 @@ main {
   white-space: nowrap;
 }
 
-.shop-toolbar__sort select,
-.category-toolbar__controls select {
+.shop-toolbar__sort select {
   padding: 10px 14px;
   border: 1px solid var(--border-color-strong);
   border-radius: var(--radius);
@@ -1028,7 +1179,6 @@ main {
 }
 
 .product-filters__group li {
-  margin-bottom: 10px;
   font-size: 0.9rem;
 }
 
@@ -1036,7 +1186,15 @@ main {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 44px;
   cursor: pointer;
+}
+
+.product-filters__group input[type='checkbox'],
+.product-filters__group input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .product-filters__apply {
@@ -1044,18 +1202,12 @@ main {
   margin-top: 12px;
 }
 
-.category-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 12px;
+.category-page-body {
+  padding-bottom: var(--section-padding);
 }
 
-.category-toolbar__controls {
-  display: flex;
-  gap: 12px;
+.category-toolbar {
+  margin-bottom: 24px;
 }
 
 /* =========================================================
@@ -1173,7 +1325,8 @@ main {
 }
 
 .option-chip {
-  padding: 8px 16px;
+  padding: 10px 18px;
+  min-height: 44px;
   border: 1px solid var(--border-color-strong);
   border-radius: var(--radius);
   font-size: 0.85rem;
@@ -1197,7 +1350,9 @@ main {
 }
 
 .qty-selector button {
-  padding: 10px 14px;
+  padding: 12px 16px;
+  min-width: 44px;
+  min-height: 44px;
   font-size: 1.1rem;
 }
 
@@ -1238,11 +1393,14 @@ main {
   display: flex;
   gap: 10px;
   margin-top: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .product-gallery__thumb {
   width: 76px;
   height: 96px;
+  flex-shrink: 0;
   border-radius: var(--radius);
   overflow: hidden;
   border: 2px solid transparent;
@@ -1331,6 +1489,7 @@ main {
 
 .spec-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -1340,6 +1499,7 @@ main {
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.92rem;
+  word-break: break-word;
 }
 
 .spec-table th {
@@ -1533,7 +1693,7 @@ main {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(400px, 90vw);
+  width: min(400px, 100vw);
   background: #fff;
   z-index: 160;
   transform: translateX(100%);
@@ -1691,7 +1851,7 @@ main {
   max-width: var(--container-width);
   text-align: center;
   align-items: center;
-  padding-block: 56px;
+  padding-block: var(--section-padding);
   border-top: 1px solid var(--border-color);
 }
 
@@ -1896,19 +2056,11 @@ main {
    RESPONSIVE BREAKPOINTS
    ========================================================= */
 
-/* Laptop */
-@media (max-width: 1439px) {
-  .container,
-  .site-header__inner,
-  .site-footer__inner {
-    max-width: 1180px;
-  }
-}
-
-/* The desktop nav's eight labels (several two-word) stop fitting on one
-   line well before the general tablet breakpoint — switch to the
-   hamburger menu earlier so items never wrap mid-label. */
-@media (max-width: 1299px) {
+/* With "Categories" collapsed into a dropdown, the nav is short enough
+   to stay on one line down through the tablet tier — only true mobile
+   viewports drop to the hamburger menu (see the tablet icon-hiding rule
+   below, which is what actually makes room for it at 768-1023px). */
+@media (max-width: 767px) {
   .desktop-nav {
     display: none;
   }
@@ -1918,8 +2070,24 @@ main {
   }
 }
 
-/* Tablet */
+/* Laptop (1024-1279px): still a two-column, side-by-side layout for
+   hero/detail/filters, but a product grid needs one fewer column than
+   Desktop before cards get uncomfortably narrow. */
+@media (max-width: 1279px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet — the horizontal nav still shows (see the 767px rule above),
+   but the account/wishlist icons make way for it, matching the
+   [logo][nav][search][cart] tablet header. */
 @media (max-width: 1023px) {
+  .site-header__icons .site-header__icon--account,
+  .site-header__icons .site-header__icon--wishlist {
+    display: none;
+  }
+
   .hero {
     grid-template-columns: 1fr;
     text-align: center;
@@ -1937,10 +2105,19 @@ main {
     order: -1;
     max-width: 420px;
     margin-inline: auto;
+    /* Extra inline space so the accent image's negative offset (below)
+       has room to sit without being clipped by the viewport edge. */
+    padding-inline: 20px;
+  }
+
+  .hero__image--accent {
+    left: -16px;
+    bottom: -16px;
+    width: 45%;
   }
 
   .category-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .product-grid {
@@ -2014,12 +2191,31 @@ main {
   }
 
   .site-header__icons {
-    gap: 12px;
+    gap: 4px;
   }
 
-  .site-header__icons .site-header__icon--account,
-  .site-header__icons .site-header__icon--wishlist {
-    display: none;
+  .site-header__icons button,
+  .site-header__icons a,
+  .site-header__hamburger {
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+  }
+
+  .btn--small {
+    padding: 10px 14px;
+    min-height: 40px;
   }
 
   .category-grid {
@@ -2159,7 +2355,7 @@ main {
   width: 36px;
   height: 36px;
   border: 1px solid var(--border-color-strong);
-  border-radius: 50%;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2217,5 +2413,20 @@ main {
     grid-template-columns: 1fr;
     padding-block: 40px;
     gap: 32px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

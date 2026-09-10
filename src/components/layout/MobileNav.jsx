@@ -33,13 +33,30 @@ export default function MobileNav({ isOpen, onClose }) {
           </button>
         </div>
         <ul className="mobile-nav__links">
-          {navLinks.map((link) => (
-            <li key={link.to}>
-              <NavLink to={link.to} onClick={onClose} end={link.to === '/'}>
-                {link.label}
-              </NavLink>
-            </li>
-          ))}
+          {navLinks.map((link) =>
+            link.dropdown ? (
+              <li key={link.label} className="mobile-nav__accordion">
+                <details>
+                  <summary>{link.label}</summary>
+                  <ul>
+                    {link.dropdown.map((sub) => (
+                      <li key={sub.to}>
+                        <NavLink to={sub.to} onClick={onClose}>
+                          {sub.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ) : (
+              <li key={link.to}>
+                <NavLink to={link.to} onClick={onClose} end={link.to === '/'}>
+                  {link.label}
+                </NavLink>
+              </li>
+            )
+          )}
         </ul>
         <div className="mobile-nav__footer">
           <a href={`mailto:${business.email}`}>{business.email}</a>
