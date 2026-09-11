@@ -19,7 +19,13 @@ export default function Footer() {
             <a href="#" aria-label="AVN Uniforms on Facebook (coming soon)" title="Facebook — coming soon" onClick={(e) => e.preventDefault()}>
               <FacebookIcon />
             </a>
-            <a href="#" aria-label="AVN Uniforms on WhatsApp (coming soon)" title="WhatsApp — coming soon" onClick={(e) => e.preventDefault()}>
+            <a
+              href={`https://wa.me/${business.whatsapp}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Chat with AVN Uniforms on WhatsApp"
+              title="Chat on WhatsApp"
+            >
               <WhatsAppIcon />
             </a>
           </div>
@@ -61,7 +67,8 @@ export default function Footer() {
           <address>
             AVN Uniforms<br />
             {business.address.city}, {business.address.state}<br />
-            <a href={`mailto:${business.email}`}>{business.email}</a>
+            <a href={`mailto:${business.email}`}>{business.email}</a><br />
+            <a href={`tel:${business.phone}`}>{business.phone}</a>
           </address>
         </div>
       </div>

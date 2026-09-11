@@ -60,6 +60,7 @@ export default function MobileNav({ isOpen, onClose }) {
         </ul>
         <div className="mobile-nav__footer">
           <a href={`mailto:${business.email}`}>{business.email}</a>
+          <a href={`tel:${business.phone}`}>{business.phone}</a>
           <p>{business.address.city}, {business.address.state}</p>
         </div>
       </nav>

@@ -9,6 +9,7 @@ const jsonLd = {
   name: business.name,
   url: business.website,
   email: business.email,
+  telephone: business.phone,
   address: {
     '@type': 'PostalAddress',
     streetAddress: `${business.address.line1}, ${business.address.line2}, ${business.address.line3}`,

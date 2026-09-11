@@ -6,8 +6,8 @@ export const business = {
   tagline: 'Uniforms That Represent Your Brand',
   email: 'info@avnuniform.com',
   website: 'https://www.avnuniform.com',
-  phone: '', // Not provided yet — UI should show a "Call to enquire" style placeholder instead of a fake number.
-  whatsapp: '', // Not provided yet — UI should show a WhatsApp CTA placeholder instead of a fake number.
+  phone: '+91 79846 79362',
+  whatsapp: '917984679362', // Digits only (country code + number) for the wa.me link.
   address: {
     line1: 'Shop No 8, Laxmi Nagar Complex',
     line2: 'Near Komal Worldwide PVT LTD',
